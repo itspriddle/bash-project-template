@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Usage: APP
+#
+# NAME
+#   APP -- FIXME
+#
+# SYNOPSIS
+#   APP
+#
+# DESCRIPTION
+#   FIXME
+#
+# OPTIONS
+#   FIXME
+#
+# EXAMPLES
+#   FIXME
+#
+# SEE ALSO
+#   FIXME
+
+# Call this script with DEBUG=1 to add some debugging output
+if [[ "$DEBUG" ]]; then
+  export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
+  set -x
+fi
+
+set -e
+
+# Echoes given args to STDERR
+#
+# $@ - args to pass to echo
+warn() {
+  echo "$@" >&2
+}
+
+# Print the help text for this program
+#
+# $1 - flag used to ask for help ("-h" or "--help")
+print_help() {
+  sed -ne '/^#/!q;s/^#$/# /;/^# /s/^# //p' < "$0" |
+    awk -v f="$1" '
+      f == "-h" && ($1 == "Usage:" || u) {
+        u=1
+        if ($0 == "") {
+          exit
+        } else {
+          print
+        }
+      }
+      f != "-h"
+      '
+}
+
+# Main program
+main() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h | --help) print_help "$1"; return 0 ;;
+      --) shift; break ;;
+      -*) warn "Invalid option '$1'"; return 1 ;;
+      *) break ;;
+    esac
+  done
+}
+
+main "$@"
