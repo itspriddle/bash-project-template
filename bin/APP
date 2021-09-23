@@ -36,27 +36,17 @@ warn() {
 
 # Print the help text for this program
 #
-# $1 - flag used to ask for help ("-h" or "--help")
+# $1 - if set, show full help, otherwise just usage
 print_help() {
   sed -ne '/^#/!q;s/^#$/# /;/^# /s/^# //p' < "$0" |
-    awk -v f="$1" '
-      f == "-h" && ($1 == "Usage:" || u) {
-        u=1
-        if ($0 == "") {
-          exit
-        } else {
-          print
-        }
-      }
-      f != "-h"
-      '
+    awk -v f="$1" '!f && /^Usage:/ || u { u=!/^\s*$/; if (!u) exit } u || f'
 }
 
 # Main program
 main() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      -h | --help) print_help "$1"; return 0 ;;
+      -h | --help) print_help "${1#-h}"; return 0 ;;
       --) shift; break ;;
       -*) warn "Invalid option '$1'"; return 1 ;;
       *) break ;;
